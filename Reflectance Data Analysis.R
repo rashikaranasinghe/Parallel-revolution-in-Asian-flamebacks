@@ -2,7 +2,12 @@
 ## Reflectance_data_analysis_Asian_Flamebacks_script.R
 # started by Rashika W. Ranasinghe 17 Sept 2024
 
-# This file includes R scripts for analysis reflectance spectrometric data () used in the manuscript titled: "*********".
+# This file contains R scripts for analyzing reflectance spectrometric data, including 
+# 1. generating reflectance spectra, 
+# 2. extracting colorimetric variables,
+# 3. visualizing colorimetric variables, and 
+# 4. performing statistical analysis on these variables, 
+# as used in the manuscript titled: '*********'."
 
 
 ############################################################################
@@ -212,3 +217,29 @@ ggplot(Data_long, aes(y = Values, x = Scientific.names, fill=Scientific.names)) 
 ########################################################################################################
 ############## END visualizing colorimatric parameters (H3, catotenoid chroma and brightness) ############
 ########################################################################################################
+
+
+###############################################################################################
+########################## Statistical analysis of colorimatric variables #####################
+###############################################################################################
+## Conduct a Fisher-Pitman permutation test to assess whether there are significant differences in each variable between species. If the permutation test indicates significant differences among groups, perform post-hoc analysis with pairwise tests to identify which group pairs show significant differences.
+
+# Load the lirbaries
+library(coin)
+library(rcompanion)
+        
+## Fisher-Pitman permutation test
+oneway_test(S9~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), distribution= approximate(nresample = 1000000))
+#####################
+# data:  B2 - mantle by
+# Scientific.names (C.haematribon, C.l.rufopunctatus, C.stricklandi, C.xanthocephalus, D.psarodes)
+# chi-squared = 14.968, p-value = 0.000856.
+#####################
+
+## post-hoc analysis
+PT <- pairwisePermutationTest(B2 ~ Scientific.names, 
+                              data=filter(colorimatrics, feathers == "crown"),teststat = "quadratic",method   = "fdr")
+PT
+###############################################################################################
+####################### END Statistical analysis of colorimatric variables ####################
+###############################################################################################
