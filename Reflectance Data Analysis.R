@@ -153,3 +153,62 @@ write.csv(summary(mantle_Dino_mean), file = "Colorimatric.Data-Dinopium_crown_fr
 ########################################################################################
 ############### Calculate colorimatric variables using pavo ############################
 ########################################################################################
+
+
+
+
+
+########################################################################################################
+############### Visualize colorimatric parameters (H3, catotenoid chroma and brightness) ###############
+########################################################################################################
+# set the working directory
+setwd("/Users/rashikaranasinghe/Library/CloudStorage/OneDrive-UBC/Irwin Lab/My Research/carotenoid analysis_I/HPLC/Flameback-reflectance data/Reflectance analysis project")
+
+# Lodad the libraries
+library(tidyverse)
+library(tidyr)
+
+# Read the data file 
+colorimatrics <- read.csv("Colorimatric.Data-Dino_Chrys_crown_and_mantle_from_pavo.csv", stringsAsFactors = T)
+dim(colorimatrics)
+names(colorimatrics)
+
+# Manipulate the data
+Data_long <- colorimatrics %>%
+  pivot_longer(cols = c(B2,S9, Reflectance.average.Lambda.R50),
+               names_to = "Variable",
+               values_to = "Values")
+levels(Data_long$Scientific.names)
+Data_long$Species <- factor(Data_long$Scientific.names, levels = c("C.haematribon", "C.stricklandi", "C.l.rufopunctatus", "C.xanthocephalus","D.psarodes"))
+Data_long$Variable <- factor(Data_long$Variable, levels = c("Reflectance.average.Lambda.R50", "B2","S9"))
+
+# make the plot
+quartz(height = 3.5, width = 9)
+ggplot(Data_long, aes(y = Values, x = Scientific.names, fill=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2, shape = 21, color = "black", alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  facet_wrap(~feathers+Variable, ncol = 3, scales = "free",
+             labeller = labeller(Variable=c("Reflectance.average.Lambda.R50"= "Hue", 
+                                            "B2"="Mean brightness",
+                                            "S9"="Carotenoid Chroma"))) +
+  scale_fill_manual(values = c("cyan3", "green4", "blue", "red", "purple"),
+                    name = NULL,
+  ) +
+  ylab("Intensity") +
+  xlab("Species")+
+  scale_x_discrete(labels = NULL) +
+  theme_linedraw() +
+  theme(
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_line(color = "white"),
+    strip.background = element_rect(color = "grey50", fill = "grey50"),  
+    strip.text = element_text(face = "bold",  margin = margin(1, 10, 1, 10)),
+    panel.spacing = unit(0.2, "lines"),
+    legend.position = "top",
+    axis.title.y = element_text(face = "bold"),
+    axis.title.x = element_text(face = "bold")) +
+  ggtitle("Colorimatric variables (for 3 ovelapped feathers)") 
+########################################################################################################
+############## END visualizing colorimatric parameters (H3, catotenoid chroma and brightness) ############
+########################################################################################################
