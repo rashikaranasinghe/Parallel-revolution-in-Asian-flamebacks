@@ -82,7 +82,7 @@ text(tree.pca$S,labels=spp.names,cex=0.8,col=colPalette)
 ######## Ancestral states reconstruction of Hue ################
 
 # set the working direcotry
-setwd("/Users/rashikaranasinghe/Library/CloudStorage/OneDrive-UBC/Dinopium_GBS_on_laptop/012NA_150_samples/Ancestor_reconstruction")
+setwd("Dinopium_GBS_on_laptop/012NA_150_samples/Ancestor_reconstruction")
 
 # load the packages
 library(phytools)
@@ -167,6 +167,116 @@ ggplot(data_long, aes(x = Pigment, y = Tip_name, fill = Pigment)) +
 
 ##### END Tile plot showing percentages of each red pigment in for each individual ######
 #########################################################################################
+
+###########################################################################################
+############## Ancestral state recostruction of other variables  #########################
+
+# set the working direcotry
+setwd("/Dinopium_GBS_on_laptop/012NA_150_samples/Ancestor reconstruction")
+
+# load the packages
+library(phytools)
+library(ape)
+
+## Read the molecular phylogenetic tree
+tree.cladogram <- read.nexus("Dino.Chrys.n60_40412SNPs_l10000.tree_Edited_nexusfile.nex")
+tree.cladogram <- drop.tip(tree,"P.nahrattemsis") # Remove species in the tree that are not in the data matrix
+## read the phenotype data 
+pheno <- read.csv("Dino.Chrys.n60_40412SNPs_l10000.tree.pheno_Data.csv",row.names = 1)
+# remove the pygmy woodpecker form teh data set because I don't have phenotype data for them.
+pheno_new <- pheno[-c(3),]
+pheno = pheno_new 
+
+
+############### C4-keto carotenoid content 
+## extract character of interest
+C4_ketocarotenoids <-setNames(pheno$Red_pig_conten_percentage,rownames(pheno))
+
+## find the best fit model to estimate ancestral state for C4 ketolation
+fit.BM<-anc.ML(tree.cladogram, C4_ketocarotenoids, model = "BM")
+fit.EB<-anc.ML(tree.cladogram, C4_ketocarotenoids, model = "EB")
+
+AIC(fit.BM, fit.EB)
+
+## create "contMap" object
+Dino.contMap<-contMap(tree.cladogram,C4_ketocarotenoids,plot=FALSE,res=200)
+## change color scheme
+Dino.contMap<-setMap(Dino.contMap,
+                     c("white","grey98", "#FFCCCC", "red"))
+
+quartz(width = 4.3, height = 4)
+plot(Dino.contMap,fsize=c(0.7,0.8), offset=1.5,leg.txt="4-keto groups")
+tiplabels(round(avg_4_keto_groups, 0.1), bg="white", frame="circle", cex=0.7, offset=1.5)
+#nodelabels(round(fit.BM$ace, 0.1), bg="white", frame="circle")
+
+
+############### C4 ketolation 
+## extract character of interest
+avg_4_keto_groups<-setNames(pheno$avg_4_keto_groups,rownames(pheno))
+
+## find the best fit model to estimate ancestral state for C4 ketolation
+fit.BM<-anc.ML(tree.cladogram, avg_4_keto_groups, model = "BM")
+fit.EB<-anc.ML(tree.cladogram, avg_4_keto_groups, model = "EB")
+
+AIC(fit.BM, fit.EB)
+
+## create "contMap" object
+Dino.contMap<-contMap(tree.cladogram,avg_4_keto_groups,plot=FALSE,res=200)
+## change color scheme
+Dino.contMap<-setMap(Dino.contMap,
+                     c("white","grey95", "grey90", "brown", "brown4"))
+
+quartz(width = 4.3, height = 4)
+plot(Dino.contMap,fsize=c(0.7,0.8), offset=1.5,leg.txt="4-keto groups")
+tiplabels(round(avg_4_keto_groups, 0.1), bg="white", frame="circle", offset=1.4)
+#nodelabels(round(fit.BM$ace, 0.1), bg="white", frame="circle")
+
+############### Number of hydroxy group composition  along the tree ##################
+## extract character of interest
+avg_3_hydroxylation<-setNames(pheno$avg_3_hydroxylation,rownames(pheno))
+
+## find the best fit model to estimate ancestral state for C4 ketolation
+fit.BM<-anc.ML(tree.cladogram, avg_3_hydroxylation, model = "BM")
+fit.EB<-anc.ML(tree.cladogram, avg_3_hydroxylation, model = "EB")
+
+AIC(fit.BM, fit.EB)
+
+## create "contMap" object
+Dino.contMap<-contMap(tree.cladogram,avg_3_hydroxylation,plot=FALSE,res=200)
+## change color scheme
+Dino.contMap<-setMap(Dino.contMap,
+                     c("white","grey90", "grey", "grey30", "grey20"))
+
+quartz(width = 4.3, height = 4)
+plot(Dino.contMap,fsize=c(0.7,0.8), offset=1.4,leg.txt="3-hydoxyl groups")
+tiplabels(round(avg_3_hydroxylation, 1), bg="white", frame="circle", cex=0.6,offset=1.5)
+#nodelabels(round(fit.BM$ace, 1), bg="white", frame="circle", cex=0.6)
+#title("avg_3_hydroxylation")
+
+
+############### Number of epsilon rings composition  along the tree ##################
+## extract character of interest
+avg_epsilon_rings<-setNames(pheno$avg_epsilon_rings,rownames(pheno))
+
+## find the best fit model to estimate ancestral state for C4 ketolation
+fit.BM<-anc.ML(tree.cladogram, avg_3_hydroxylation, model = "BM")
+fit.EB<-anc.ML(tree.cladogram, avg_3_hydroxylation, model = "EB")
+
+AIC(fit.BM, fit.EB)
+
+## create "contMap" object
+Dino.contMap<-contMap(tree.cladogram,avg_epsilon_rings,plot=FALSE,res=200)
+## change color scheme
+Dino.contMap<-setMap(Dino.contMap,
+                     c("white","grey95", "grey90", "yellow"))
+
+quartz(width = 4.3, height = 4)
+plot(Dino.contMap,fsize=c(0.7,0.8), offset=1.35,
+     leg.txt="epsilon rings")
+tiplabels(round(avg_epsilon_rings, 1), bg="white", frame="circle", cex=0.7, offset=1.2)
+#nodelabels(round(fit.BM$ace, 0.1), bg="white", frame="circle")
+############################ END Plot functional groups  #################################
+###########################################################################################
 
 #################################################################################
 ##################### END Ancestral states reconstruction ############################
