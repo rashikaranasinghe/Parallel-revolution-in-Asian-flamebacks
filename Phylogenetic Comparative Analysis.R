@@ -72,3 +72,103 @@ text(tree.pca$S,labels=spp.names,cex=0.8,col=colPalette)
 
 ################################## Phylogenetic PCA ##############################
 ###################################################################################
+
+
+#################################################################################
+##################### Ancestral states reconstruction ############################
+#################################################################################
+
+#################################################################################
+######## Ancestral states reconstruction of Hue ################
+
+# set the working direcotry
+setwd("/Users/rashikaranasinghe/Library/CloudStorage/OneDrive-UBC/Dinopium_GBS_on_laptop/012NA_150_samples/Ancestor_reconstruction")
+
+# load the packages
+library(phytools)
+library(ape)
+
+## Read the molecular phylogenetic tree
+tree <- read.nexus("Dino.Chrys.n60_40412SNPs_l10000.tree.nexusfile")
+tree <- drop.tip(tree,"P.nahrattemsis") # Remove species in the tree that are not in the data matrix
+
+## read the phenotype data 
+pheno <- read.csv("Dino.Chrys.n60_40412SNPs_l10000.tree.pheno_Data.csv",row.names = 1)
+# remove the pygmy woodpecker form teh data set because I don't have phenotype data for them.
+pheno_new <- pheno[-c(3),]
+pheno = pheno_new 
+
+## extract character of interest
+hue<-setNames(pheno$Hue_mantle,rownames(pheno))
+
+## estimate ancestral state under BM model
+fit.BM<-anc.ML(tree, hue)
+
+## Breakdown continuous trait in categories
+hue.cat <- cut(hue, breaks = 4, labels=FALSE) # for tip labels
+hue.node.cat <- cut(fit.BM$ace, breaks = 4, labels=FALSE) # for nodes 
+
+# Create a color palette from yellow to red
+color_bins <- c("#FFFF00", "#FFDA00", "#FFB600", "#FF0000")
+
+# Plot the data
+quartz()
+plot(tree, type="p", use.edge.length = T, label.offset = 0.8, cex = 0.9)
+tiplabels(round(hue, 0.1), bg=color_bins[hue.cat], frame="circle", cex=0.4)
+nodelabels(round(fit.BM$ace, 0.1), bg=color_bins[hue.node.cat], frame="circle", cex=0.4)
+
+######## END Ancestral states reconstruction of Hue ################
+#################################################################################
+
+
+#########################################################################################
+######## Tile plot showing percentages of each red pigment in for each individual ######
+library(dplyr)
+library(tidyr)
+
+# read the data 
+pheno <- read.csv("Dino.Chrys.n60_40412SNPs_l10000.tree.pheno_Data.csv", stringsAsFactors = T)
+
+# Transform the data to a long format
+data_long <- pheno %>%
+  pivot_longer(cols = c(Astaxanthin_content_percentage:papilioerythrinone_percentage),
+               names_to = "Pigment", 
+               values_to = "Percentage") 
+data_long$Tip_name <- factor(data_long$Tip_name, levels = c("C.erythrocephalus","C.festivus", "P.nahrattemsis", "C.haematribon", "C.l.rufopunctatus", "C.l.lucidus", "C.xanthocephalus","C.stricklandi", "D.b.jaffnense", "D.psarodes", "D.b.puncticolle"))
+
+data_long$Pigment <- factor(data_long$Pigment, levels = c("Astaxanthin_content_percentage", "Adonirubin_percentage","Canthaxanthin_percentage","Alpa.doradexanthin_percentage","papilioerythrinone_percentage"))
+
+# Define unique colors for each pigment
+pigment_colors <- c("Canthaxanthin_percentage"="red3",
+                    "Adonirubin_percentage"="red3",
+                    "Astaxanthin_content_percentage"="red3",  
+                    "Alpa.doradexanthin_percentage"="red3", 
+                    "papilioerythrinone_percentage"="red3")
+
+# Create the tile plot
+quartz()
+ggplot(data_long, aes(x = Pigment, y = Tip_name, fill = Pigment)) +
+  geom_tile(color = "black", aes(alpha = Percentage)) +
+  scale_fill_manual(values = pigment_colors) +
+  scale_alpha(range = c(0, 3)) + # Vary transparency based on concentration
+  geom_text(aes(label = round(Percentage, 2)), size = 3.5, color="grey2", face="bold") + 
+  scale_x_discrete(labels = c("Canthaxanthin_percentage"="Canthaxanthin",
+                              "Adonirubin_percentage"="Adonirubin",
+                              "Astaxanthin_content_percentage"="Astaxanthin",  
+                              "Alpa.doradexanthin_percentage"="Alpha-doradexanthin",
+                              "papilioerythrinone_percentage"="Papilioerythrinone"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1,size=9),
+        axis.text.y = element_blank(),
+        axis.title = element_blank(), # to remove both x and y axis titles
+        legend.position = "none",
+        panel.grid.major = element_line(color = "white", linetype = "dashed")
+  )
+
+##### END Tile plot showing percentages of each red pigment in for each individual ######
+#########################################################################################
+
+#################################################################################
+##################### END Ancestral states reconstruction ############################
+#################################################################################
+
