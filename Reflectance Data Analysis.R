@@ -214,6 +214,125 @@ ggplot(Data_long, aes(y = Values, x = Scientific.names, fill=Scientific.names)) 
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold")) +
   ggtitle("Colorimatric variables (for 3 ovelapped feathers)") 
+
+###################### OR #################
+############## Make individual plot separately ###############
+# Read the data file 
+colorimatrics <- read.csv("Colorimatric.Data-Dino_Chrys_crown_and_mantle_from_pavo.csv", stringsAsFactors = T)
+colorimatrics.crown <- filter(colorimatrics, feathers=="crown") # filter the data for crown
+colorimatrics.mantle <- filter(colorimatrics, feathers=="mantle") # filter the data for mantle
+
+######## Hue for crown feathers 
+quartz(height = 4, width = 4)
+ggplot(colorimatrics.crown, aes(y = Reflectance.average.Lambda.R50, x = Scientific.names, shape=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2.5, color = "black", fill="cyan3",alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  scale_shape_manual(values = c(25, 22, 24, 23, 21))+
+  scale_y_continuous(breaks = seq(570, 630, by = 10), limits = c(570, 630)) +
+  ylab("Hue (nm)") + xlab("Species")+
+  theme_test() +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.position = "none",
+    axis.title = element_text(size=13),
+    axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle("Hue for crown feathers")
+
+######## Hue for mantle feathers 
+quartz(height = 4, width = 4)
+ggplot(colorimatrics.mantle, aes(y = Reflectance.average.Lambda.R50, x = Scientific.names, shape=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2.5, color = "black", fill="cyan3", alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  scale_shape_manual(values = c(25, 22, 24, 23, 21))+
+  scale_y_continuous(breaks = seq(570, 630, by = 10), limits = c(570, 630)) +
+  ylab("Hue (nm)") +
+  xlab("Species")+
+  theme_test() +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.position = "none",
+    axis.title = element_text(size=13),
+    axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle("Hue for mantle feathers")
+
+
+######## Mean Brighness (B2) for crown feathers 
+quartz(height = 4, width = 4)
+ggplot(colorimatrics.crown, aes(y = B2, x = Scientific.names, shape=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2.5, color = "black", fill="green4", alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  scale_shape_manual(values = c(25, 22, 24, 23, 21))+
+  scale_y_continuous(breaks = seq(-6, 25, by = 5), limits = c(-6, 25)) +
+  ylab("Brighness") +
+  xlab("Species")+
+  theme_test() +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    axis.title = element_text(size=13),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle("Brighness for crown feathers")
+
+
+######## Mean Brighness (B2) for mantle feathers 
+quartz(height = 4, width = 4)
+ggplot(colorimatrics.mantle, aes(y = B2, x = Scientific.names, shape=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2.5, color = "black", fill="green4", alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  #  scale_fill_manual(values = c("cyan3", "green4", "grey40"),
+  scale_shape_manual(values = c(25, 22, 24, 23, 21))+
+  scale_y_continuous(breaks = seq(-6, 25, by = 5), limits = c(-6, 25)) +
+  ylab("Hue (nm)") +
+  xlab("Species")+
+  theme_test() +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.position = "none",
+    axis.title = element_text(size=13),
+    axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle("Brighness for mantle feathers")
+
+
+######## Carotenoid chroma (S9) for crown feathers 
+quartz(height = 4, width = 4)
+ggplot(colorimatrics.crown, aes(y = S9, x = Scientific.names, shape=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2.5, color = "black",fill="grey20", alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  scale_shape_manual(values = c(25, 22, 24, 23, 21))+
+  scale_y_continuous(breaks = seq(0.2, 1, by = 0.2), limits = c(0.2, 1)) +
+  ylab("Carotenoid chroma") + xlab("Species")+
+  theme_test() +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.position = "none",
+    axis.title = element_text(size=13),
+    axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle("Carotenoid chroma for crown feathers")
+
+
+######## Carotenoid chroma (S9) for crown feathers 
+quartz(height = 4, width = 4)
+ggplot(colorimatrics.mantle, aes(y = S9, x = Scientific.names, shape=Scientific.names)) +
+  geom_jitter(position = position_jitter(0.3), size = 2.5, color = "black",fill="grey20", alpha = 0.6) +
+  stat_summary(fun.data = "mean_cl_normal",  fun.args = list(mult = 2.5), 
+               geom = "pointrange",  size = 0.3, shape = 23, fill = "black")+
+  scale_shape_manual(values = c(25, 22, 24, 23, 21))+
+  scale_y_continuous(breaks = seq(0.2, 1, by = 0.2), limits = c(0.2, 1)) +
+  ylab("Carotenoid chroma") + xlab("Species")+
+  theme_test() +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.position = "none",
+    axis.title = element_text(size=13),
+    axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle("Carotenoid chroma for mantle feathers")
+
+
 ########################################################################################################
 ############## END visualizing colorimatric parameters (H3, catotenoid chroma and brightness) ############
 ########################################################################################################
