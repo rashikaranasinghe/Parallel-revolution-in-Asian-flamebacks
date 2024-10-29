@@ -36,6 +36,136 @@ summary(bm.pgls)
 ##################################################################################
 
 
+###################################################################################################
+####################### Phylogenetic independent contrasts (PIC) ################################
+# Testing for statistical association between traitson the phylogenetic tree
+
+## Read the molecular phylogenetic tree
+tree <- read.nexus("Dino.Chrys.n60_40412SNPs_l10000.tree.nexusfile")
+tree <- drop.tip(tree,"P.nahrattemsis") # Remove species in the tree that are not in the data matrix
+tree$tip.label <- c("C.eryth", "C.fest", "C.haem", "C.l.ruf", "C.l.luc", "C.xanth", "C.stric", "D.b.jaff", "D.psar","D.b.punct")
+## read the phenotype data
+p <- read.csv("Dino.Chrys.n60_40412SNPs_l10000.tree.pheno_Data.csv",row.names = 1)
+pheno <- p[-3,]
+rownames(pheno) <- c("C.eryth", "C.fest", "C.haem", "C.l.ruf", "C.l.luc", "C.xanth", "C.stric", "D.b.jaff", "D.psar","D.b.punct")
+
+# Order of the data in the trait file should be in the same order as the tip.label of the tree. 
+
+#### Calculate contrasts
+# Calculate the contrasts for each trait that have been scaled using the expected variances
+C4_ketocarotenoids.contrast <- pic(pheno$Red_pig_conten_percentage, tree, scaled = T)
+C4ketolation.contrast <- pic(pheno$avg_4_keto_groups, tree, scaled = T)
+epsilon_rings.contrast <- pic(pheno$avg_epsilon_rings, tree, scaled = T)
+C3oxygenation.contrast <- pic(pheno$avg_3_hydroxylation, tree, scaled = T)
+hue.contrast <- pic(pheno$Hue_mantle, tree, scaled = T)
+
+# Merge the contrasts into a dataframe
+contrast_df <- data.frame(C4_ketocarotenoids.contrast, C4ketolation.contrast, epsilon_rings.contrast, C3oxygenation.contrast, hue.contrast)
+
+################### Correlation between mantle hue and C4 ketocarotenoid percentage ####################
+## Spearman's rank correlation without accounting for the phylogenetic assciations
+cor.test(pheno$Hue_mantle, pheno$Red_pig_conten_percentage, method = "spearman")
+#############
+# data:  pheno$Hue_mantle and pheno$Red_pig_conten_percentage
+# S = 28, p-value = 0.005557, rho =0.830303 
+
+## Spearman's rank correlation accounting for the phylogenetic assciations
+cor.test(contrast_df$hue.contrast, contrast_df$C4_ketocarotenoids.contrast, method = "spearman")
+#############
+# data:  contrast_df$hue.contrast and contrast_df$C4_ketocarotenoids.contrast
+# S = 6, p-value = 0.0003527, rho = 0.95 
+
+###### Visualize the data in a 2D plot 
+## extract character of interest
+C4_ketocarotenoids<-setNames(pheno$Red_pig_conten_percentage,rownames(pheno))
+C4_ketocarotenoids.cat <- cut(C4_ketocarotenoids, breaks = 3, labels=FALSE) 
+
+# Create a color palette from yellow to red
+ColorPalette <- c("yellow","#FD8D3C","#E31A1C")
+
+quartz(height = 4.5, width = 5)
+phylomorphospace(tree, pheno[,c(11, 6)], xlim=c(520,611), ylim=c(-17,112),
+                 xlab = "Mantle hue (nm)", ylab = "C4-keto-carotenoids (%)") 
+points(pheno[,c(11, 6)], pch=21, bg=ColorPalette[C4_ketocarotenoids.cat],col="black",cex=1.2,adj=1)
+
+
+
+################### Correlation between mantle hue and C4 ketoc groups  ####################
+## Spearman's rank correlation without accounting for the phylogenetic associations
+cor.test(pheno$Hue_mantle, pheno$avg_4_keto_groups, method = "spearman")
+#############
+# data:  pheno$Hue_mantle and pheno$avg_4_keto_groups
+# S = 26, p-value = 0.004459, rho = 0.8424242
+
+## Spearman's rank correlation accounting for the phylogenetic assciations
+cor.test(contrast_df$hue.contrast, contrast_df$C4ketolation.contrast, method = "spearman")
+#############
+# data:  contrast_df$hue.contrast and contrast_df$C4ketolation.contrast
+# S = 6, p-value = 0.0003527,  rho =0.95  
+
+###### Visualize the data in a 2D plot 
+## extract character of interest
+C4_ketolation<-setNames(pheno$avg_4_keto_groups,rownames(pheno))
+C4_ketolation.cat <- cut(C4_ketolation, breaks = 3, labels=FALSE) 
+
+# Create a color palette from yellow to red
+ColorPalette <- c("yellow","#FD8D3C","#E31A1C")
+
+quartz(height = 4.5, width = 5)
+phylomorphospace(tree, pheno[,c(11, 8)], xlim=c(520,611), ylim=c(-0.3,2.1), #  ylim=c(-0.3,2.1),
+                 xlab = "Mantle hue (nm)", ylab = "No. of C4(4')-keto groups") 
+points(pheno[,c(11, 8)], pch=21, bg=ColorPalette[C4_ketolation.cat],col="black",cex=1.2,adj=1)
+
+
+
+################### Correlation between mantle hue and C3 oxygenated groups  ####################
+## Spearman's rank correlation without accounting for the phylogenetic associations
+cor.test(pheno$Hue_mantle, pheno$avg_3_hydroxylation, method = "spearman")
+#############
+# data:  pheno$Hue_mantle and pheno$avg_3_hydroxylation
+# S = 266, p-value = 0.06647,  rho = -0.6121212
+
+## Spearman's rank correlation accounting for the phylogenetic assciations
+cor.test(contrast_df$hue.contrast, contrast_df$C3oxygenation.contrast, method = "spearman")
+#############
+# data:  contrast_df$hue.contrast and contrast_df$C3oxygenation.contrast
+# S = 202, p-value = 0.05032,  rho = -0.6833333  
+
+###### Visualize the data in a 2D plot 
+# Create a color palette from yellow to red
+ColorPalette <- c("yellow", "yellow","red", "red", "#FD8D3C","red", "red", "yellow","#E31A1C")
+quartz(height = 4.5, width = 5)
+phylomorphospace(tree, pheno[,c(11, 9)], xlim=c(520,613), ylim=c(0,2), #ylim=c(1.2,2.03),
+                 xlab = "Mantle hue (nm)", ylab = "No. of C3(3')-oxygenated groups") 
+points(pheno[,c(11, 9)], pch=21, bg=ColorPalette,col="black",cex=1.2,adj=1)
+
+
+################### Correlation between mantle hue and epsilon rings  ####################
+## Spearman's rank correlation without accounting for the phylogenetic associations
+cor.test(pheno$Hue_mantle, pheno$avg_epsilon_rings, method = "spearman")
+#############
+# data:  pheno$Hue_mantle and pheno$avg_epsilon_rings
+# S = 116, p-value = 0.407,  rho =0.2969697 
+
+## Spearman's rank correlation accounting for the phylogenetic assciations
+cor.test(contrast_df$hue.contrast, contrast_df$epsilon_rings.contrast, method = "spearman")
+#############
+# data:  contrast_df$hue.contrast and contrast_df$epsilon_rings.contrast
+# S = 114, p-value = 0.9116, rho =0.05 
+
+###### Visualize the data in a 2D plot 
+# Create a color palette from yellow to red
+ColorPalette <- c("yellow", "yellow","red", "red", "#FD8D3C","red", "red", "yellow","#E31A1C")
+quartz(height = 4.5, width = 5)
+phylomorphospace(tree, pheno[,c(11, 10)], xlim=c(520,613), ylim=c(0,2), #ylim=c(0.13,0.51),
+                 xlab = "Mantle hue (nm)", ylab = "No. of epsilon rings") 
+points(pheno[,c(11, 10)], pch=21, bg=ColorPalette,col="black",cex=1.2,adj=1)
+
+
+####################### Phylogenetic independent contrasts (PIC) ################################
+###################################################################################################
+
+
 
 ###################################################################################
 ################################## Phylogenetic PCA ##############################
