@@ -348,17 +348,26 @@ library(coin)
 library(rcompanion)
         
 ## Fisher-Pitman permutation test
-oneway_test(S9~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), distribution= approximate(nresample = 1000000))
-#####################
-# data:  B2 - mantle by
-# Scientific.names (C.haematribon, C.l.rufopunctatus, C.stricklandi, C.xanthocephalus, D.psarodes)
-# chi-squared = 14.968, p-value = 0.000856.
-#####################
+########### FOr Hue (change filter options to do the analysis for crown and mantle)
+oneway_test(Reflectance.average.Lambda.R50 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), distribution= approximate(nresample = 1000000)) # to perform the permutation test
+test <- oneway_test(Reflectance.average.Lambda.R50 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), distribution= approximate(nresample = 1000000))
+p.adjust(pvalue(test), method="fdr") # to calculate adjusted p-value for FDR
+pairwisePermutationTest(Reflectance.average.Lambda.R50 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), teststat = "quadratic",method   = "fdr") # to perform pairwise post hoc analysis 
+View(pairwisePermutationTest(Reflectance.average.Lambda.R50 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), teststat = "quadratic",method   = "fdr"))
 
-## post-hoc analysis
-PT <- pairwisePermutationTest(B2 ~ Scientific.names, 
-                              data=filter(colorimatrics, feathers == "crown"),teststat = "quadratic",method   = "fdr")
-PT
+########### For Brightness (change filter options to do the analysis for crown and mantle)
+oneway_test(B2 ~ Scientific.names, data=filter(colorimatrics, feathers == "crown"), distribution= approximate(nresample = 1000000))
+test <- oneway_test(B2 ~ Scientific.names, data=filter(colorimatrics, feathers == "crown"), distribution= approximate(nresample = 1000000))
+p.adjust(pvalue(test), method="fdr")
+pairwisePermutationTest(B2 ~ Scientific.names, data=filter(colorimatrics, feathers == "crown"), teststat = "quadratic",method   = "fdr")
+View(pairwisePermutationTest(B2 ~ Scientific.names, data=filter(colorimatrics, feathers == "crown"), teststat = "quadratic",method   = "fdr"))
+
+########### For carotenoid chroma (change filter options to do the analysis for crown and mantle)
+oneway_test(S9 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), distribution= approximate(nresample = 1000000))
+test <- oneway_test(S9 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), distribution= approximate(nresample = 1000000))
+p.adjust(pvalue(test), method="fdr")
+pairwisePermutationTest(S9 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), teststat = "quadratic",method   = "fdr")
+View(pairwisePermutationTest(S9 ~ Scientific.names, data=filter(colorimatrics, feathers == "mantle"), teststat = "quadratic",method   = "fdr"))
 ###############################################################################################
 ####################### END Statistical analysis of colorimatric variables ####################
 ###############################################################################################
